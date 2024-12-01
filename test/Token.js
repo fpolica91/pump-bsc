@@ -11,8 +11,8 @@ describe("Token contract", function () {
     await ethers.getContractAt("LiquidityPool", liquidityPoolAddress)
     const balance = await token.balanceOf(liquidityPoolAddress)
     expect(balance).to.equal(BigInt(800_000_000) * BigInt(10 ** 18))
-    console.log(await token.balanceOf(owner.address))
-    // await tokenFactory.buyToken(tokenAddress, { value: ethers.parseEther("1.0") });
-    // expect(await token.balanceOf(liquidityPoolAddress)).to.equal(BigInt(799_999_999) * BigInt(10 ** 18))
+ 
+    await tokenFactory.buyToken(tokenAddress, { value: ethers.parseEther("1.0") });
+    expect(await token.balanceOf(liquidityPoolAddress)).to.equal(BigInt(799_999_999) * BigInt(10 ** 18))
   });
 });
