@@ -1,23 +1,16 @@
 const { expect } = require("chai");
 describe("Token contract", function () {
   it("Deployment token factory", async function () {
-    const [owner] = await ethers.getSigners();
- 
-    // const hardhatToken = await ethers.deployContract("Token", ["Test", "TEST"]);
-    // const liquidityPool = await ethers.deployContract("LiquidityPool", [hardhatToken.address]);
     const tokenFactory = await ethers.deployContract("TokenFactory");
     const tx = await tokenFactory.createToken("Test", "TEST");
     await tx.wait()
     const tokenAddress = await tokenFactory.getDeployedTokens(0)
-    const allTokens = await tokenFactory.getAllTokens()
-
-    // expect(await token.balanceOf(owner.address)).to.equal(800_000_000);
-    expect(true).to.be.true;
-    // console.log(token);
-
-
-
-  //   const ownerBalance = await hardhatToken.balanceOf(owner.address);
-  //   expect(await hardhatToken.totalSupply()).to.equal(ownerBalance);
+    const token = await ethers.getContractAt("Token", tokenAddress)
+    const liquidityPoolAddress = await tokenFactory.getLiquidityPool(tokenAddress)
+    await ethers.getContractAt("LiquidityPool", liquidityPoolAddress)
+    const balance = await token.balanceOf(liquidityPoolAddress)
+    expect(balance).to.equal(BigInt(800_000_000) * BigInt(10 ** 18))
+    await tokenFactory.buyToken(tokenAddress, { value: ethers.parseEther("1.0") });
+    expect(await token.balanceOf(liquidityPoolAddress)).to.equal(BigInt(799_999_999) * BigInt(10 ** 18))
   });
 });
