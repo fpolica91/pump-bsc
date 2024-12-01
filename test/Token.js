@@ -7,6 +7,7 @@ describe("Token contract", function () {
     await tx.wait()
     const tokenAddress = await tokenFactory.getDeployedTokens(0)
     const token = await ethers.getContractAt("Token", tokenAddress)
+    expect(await token.owner()).to.equal(tokenFactory.target);
     const liquidityPoolAddress = await tokenFactory.getLiquidityPool(tokenAddress)
     await ethers.getContractAt("LiquidityPool", liquidityPoolAddress)
     const balance = await token.balanceOf(liquidityPoolAddress)

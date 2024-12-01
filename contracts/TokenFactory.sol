@@ -21,10 +21,13 @@ contract Token is
 
     function initialize(
         string memory name,
-        string memory symbol
+        string memory symbol,
+        address factory
     ) public initializer {
         __ERC20_init(name, symbol);
-        __Ownable_init(msg.sender);
+        __Ownable_init(factory);
+        __ReentrancyGuard_init();
+        // _mint(factory, INITIAL_SUPPLY);
     }
     function mint(address to) external onlyOwner {
         _mint(to, INITIAL_SUPPLY);
@@ -50,7 +53,7 @@ contract LiquidityPool {
     }
 }
 
-contract TokenFactory is ReentrancyGuard, ERC165 {
+contract TokenFactory is ReentrancyGuard {
     event NewTokenPairCreated(address token, address liquidityPool);
     mapping(address => address[]) public userTokens;
     mapping(address => address) public liquidityPools;
@@ -65,7 +68,7 @@ contract TokenFactory is ReentrancyGuard, ERC165 {
         string memory symbol
     ) public returns (address) {
         address clone = Clones.clone(tokenImplementation);
-        Token(clone).initialize(name, symbol);
+        Token(clone).initialize(name, symbol, address(this));
         LiquidityPool lp = new LiquidityPool(address(clone));
         Token(clone).mint(address(lp));
         emit NewTokenPairCreated(clone, address(lp));
